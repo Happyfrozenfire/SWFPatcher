@@ -5,8 +5,8 @@
 package net.garrisonhq.swfpatcher;
 
 import java.io.*;
-import java.lang.reflect.*;
-import java.net.*;
+import java.util.Stack;
+import net.garrisonhq.swfpatcher.patch.*;
 import org.update4j.DynamicClassLoader;
 
 /**
@@ -16,62 +16,74 @@ import org.update4j.DynamicClassLoader;
 public class SWFPatcher {
     
     public static DynamicClassLoader classLoader = (DynamicClassLoader)ClassLoader.getSystemClassLoader();
-    public static Class mainClass;
     
     public static void main(String[] args) {
         System.out.println("Hello World!");
         
         String[] args2 = new String[] 
         { 
-            "C:\\Users\\gusjg\\OneDrive\\Documents\\GitHub\\jpexs-decompiler\\dist\\ffdec.jar"
+            "C:\\Users\\gusjg\\OneDrive\\Documents\\GitHub\\jpexs-decompiler\\dist\\ffdec.jar",
+            "-help"
         };
         
+        Stack<String> arguments = new Stack<>();
+        for (int i = args2.length - 1; i >= 0; i--) {
+            String arg = args2[i];
+            if (arg.length() > 0) {
+                arguments.add(arg);
+            }
+        }
+        
+        String jpexsLocation = arguments.pop();
         
         try
         {
-            File file = new File(args2[0]); 
+            File file = new File(jpexsLocation); 
             if(!file.exists())
             {
-                throw new FileNotFoundException(args2[0] + " does not exist."); //FileNotFoundException
+                throw new FileNotFoundException(jpexsLocation + " does not exist."); //FileNotFoundException
             }
             
-            classLoader.appendToClassPathForInstrumentation(args2[0]);
+            classLoader.appendToClassPathForInstrumentation(jpexsLocation);
             
-            mainClass = Class.forName("com.jpexs.decompiler.flash.gui.Main", true, classLoader);
-            Method mainMethod = mainClass.getDeclaredMethod("main", String[].class);
+            JPEXSAPI.initClasses();
             
-            mainMethod.invoke(null, (Object)new String[0]);
+            JPEXSAPI.initMethods();
             
         }
         catch(FileNotFoundException e)
         {
-            System.out.println("Could not locate " + args2[0]);
+            System.out.println("Could not locate " + jpexsLocation);
             return;
         }
         catch(IOException e)
         {
-            System.out.println("Could not access " + args2[0]);
+            System.out.println("Could not access " + jpexsLocation);
             return;
         }
         catch(ClassNotFoundException e)
         {
-            System.out.println("Could not locate com.jpexs.decompiler.flash.gui.Main in " + args2[0]);
+            System.out.println("Could not locate com.jpexs.decompiler.flash.gui.Main in " + jpexsLocation);
             return;
         }
         catch(NoSuchMethodException e)
         {
-            System.out.println("Could not locate main(string[] args) in com.jpexs.decompiler.flash.gui.Main in " + args2[0]);
+            System.out.println("Could not locate main(string[] args) in com.jpexs.decompiler.flash.gui.Main in " + jpexsLocation);
             return;
         }
-        catch(IllegalAccessException e)
+        catch(Exception e)
         {
             e.printStackTrace();
             return;
         }
-        catch(InvocationTargetException e)
+        
+        args2 = new String[args2.length - 1];
+        for(int i = 0; !arguments.isEmpty(); i++)
         {
-            e.printStackTrace();
-            return;
+            args2[i] = arguments.pop();
         }
+        
+        Instruction instruction = new CommandInstruction(args2);
+        instruction.execute();
     }
 }

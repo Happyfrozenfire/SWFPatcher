@@ -1,2 +1,8 @@
-net\garrisonhq\swfpatcher\SWFPatcher.class
+net\garrisonhq\swfpatcher\JPEXSAPI$Classes.class
 org\update4j\DynamicClassLoader.class
+net\garrisonhq\swfpatcher\JPEXSAPI$Methods.class
+net\garrisonhq\swfpatcher\patch\Instruction.class
+net\garrisonhq\swfpatcher\JPEXSHelper.class
+net\garrisonhq\swfpatcher\SWFPatcher.class
+net\garrisonhq\swfpatcher\JPEXSAPI.class
+net\garrisonhq\swfpatcher\patch\CommandInstruction.class
